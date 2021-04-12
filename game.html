@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css">
+
+<title>Vehicle Simulation</title>
+
+<div id="info">SCORE: 0</div>
+<div id="button"><button id="startButton" type="button" onclick="toggleGame(false)">START</button></div>
+<div id="instructions"><button id="instButton" type="button" onclick="toggleInstructions()">HOW TO PLAY</button></div>
+<div id="image"><img src="instructions.png"></div>
+<div id="gameover"><img src="gameover.png"></div>
+
+<script src="libs/build/three.min.js"></script>
+<script src="libs/examples/js/controls/OrbitControls.js"></script>
+<script src="boiler.js"></script>
+<script src="scene.js"></script>
+<script src="vehicle.js"></script>
+<script src="road.js"></script>
+<script src="background.js"></script>
+<script src="grass.js"></script>
+<script src="sun.js"></script>
+<script src="lights.js"></script>
+
+<script type="text/javascript">
+
+// Global var for animation
+var myScene
+var playing = false;
+var inst = false;
+
+// makes the scene graph with all the elements
+function makeSceneGraph () {
+   myScene = new Scene()
+   scene.add (myScene)
+   lights = new Lights()
+   var img = document.getElementById("image");
+   img.style.display = "none";
+   var gameover = document.getElementById("gameover");
+   gameover.style.display = "none";
+
+   // Other initialization: when the mouse moves, call our function
+   document.addEventListener ("mousedown", onDocumentMouseDown, false)
+   document.addEventListener('keydown', onKeyDown, true)
+}
+
+// toggles the start and top of the game
+function toggleGame(lost) {
+    if (document.getElementById("startButton").innerHTML == "QUIT") {
+        window.close();
+    }
+
+    else if (playing) {
+        playing = false;
+        if (lost) {
+            document.getElementById("startButton").innerHTML = "QUIT";
+            var gameover = document.getElementById("gameover");
+            gameover.style.display = "block"
+
+        }
+        else
+            document.getElementById("startButton").innerHTML = "START";
+    }
+    else {
+        playing = true;
+        document.getElementById("startButton").innerHTML = "STOP";
+    }
+}
+
+// toggle instruction image
+function toggleInstructions() {
+    var img = document.getElementById("image");
+    if (inst) {
+        inst = false;
+        img.style.display = "none";
+        document.getElementById("instButton").innerHTML = "HOW TO PLAY";
+    }
+    else {
+        inst = true;
+        img.style.display = "block";
+        document.getElementById("instButton").innerHTML = "HIDE";
+    }
+}
+
+// override boiler.js functions
+animate = function () {
+   requestAnimationFrame( animate );
+   if (playing)
+    myScene.tick()
+   document.getElementById("info").innerHTML = "SCORE: " + myScene.score.toString();
+}
+
+// handles mouse clicking
+function onDocumentMouseDown (event) {
+   var mouse = {
+       x: ( event.clientX / window.innerWidth ) * 2 - 1,
+       y: - ( event.clientY / window.innerHeight ) * 2 + 1 }
+
+   var raycaster = new THREE.Raycaster ()
+   raycaster.setFromCamera (mouse, camera)
+
+   var intersects = raycaster.intersectObjects (scene.children, true);
+
+   if (intersects.length > 0) {
+       // upon mouse clicking, sets up vehicle to stop appropriately
+       if (intersects[0].object.parent.name == "vehicle") {
+        if (intersects[0].object.parent.stop == true) {
+            intersects[0].object.parent.stop = false
+            intersects[0].object.parent.speed = 1.1;
+            intersects[0].object.parent.select.visible = false
+
+        } else {
+            intersects[0].object.parent.stop = true
+            intersects[0].object.parent.select.visible = true
+        }
+    }
+       render()
+   }
+}
+
+function onKeyDown (event) {
+    // upon pressing the enter key, randomizes the colors
+    if (event.keyCode == 13)
+        myScene.randomizeColors();
+}
+
+</script>
+</head>
+
+<body style="margin: 0px">
+<!-- Container for three.js -->
+<div id="theContainer"></div>
+</body>
+</html>
