@@ -12,6 +12,6 @@ You gain points for every intersection crossed and lose them if you crash.
 
 You can also press enter to randomize the car colors.
 
-## [Open the Simulator](www.google.com)
+## [Open the Simulator](https://rohans922.github.io/traffic-3D-simulator/)
 
 This program uses three.js to function.
